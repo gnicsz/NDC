@@ -205,8 +205,6 @@ export function MinimalNftMint(props: Props) {
 								quantity: 1n,
 								to: account.address,
 							}}
-							// Force the correct price for Phantom wallet
-							pricePerToken={props.pricePerToken ? BigInt(Math.floor(props.pricePerToken * 1e6)) : undefined}
 							style={{
 								backgroundColor: "#ffffff",
 								color: "#000000",
