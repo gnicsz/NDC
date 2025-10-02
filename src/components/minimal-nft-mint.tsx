@@ -196,7 +196,7 @@ export function MinimalNftMint(props: Props) {
 							client={props.contract.client}
 							claimParams={{
 								type: "ERC1155",
-								tokenId: defaultTokenId,
+								tokenId: nextTokenId,
 								quantity: 1n,
 								to: account.address,
 							}}

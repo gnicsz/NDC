@@ -11,106 +11,91 @@ export async function getERC1155Info(contract: ThirdwebContract) {
   const contractMetadata = await getContractMetadata({ contract });
   console.log("Contract metadata:", JSON.stringify(contractMetadata, null, 2));
   
-  // For Next Dollar Club: Dynamic pricing starts at 1 USDC and increases by 1 USDC per token
+  // For Next Dollar Club: Dynamic pricing per token ID
   let pricePerToken = 1; // Default to 1 USDC for first token
   let currencySymbol = "USDC";
   
   try {
-    // Get current total supply to calculate the price for the next token
+    // Get current total supply to find the next token ID to mint
     const currentSupply = await totalSupply({ contract, id: defaultTokenId });
     console.log("Current ERC1155 supply for token", defaultTokenId.toString(), ":", currentSupply.toString());
 
-    // Price = (current supply + 1) USDC - this is our expected price
-    const expectedPrice = Number(currentSupply) + 1;
-    console.log("Expected next token price:", expectedPrice, "USDC");
+    // The next token to mint will be at index currentSupply (0-based indexing)
+    const nextTokenIndex = Number(currentSupply);
+    console.log("Next token index to mint:", nextTokenIndex);
     
-    // Try to get all claim conditions to find the right tier for current supply
+    // For your setup: token 0 = 1 USDC, token 1 = 2 USDC, token 2 = 3 USDC, etc.
+    const expectedPrice = nextTokenIndex + 1;
+    console.log("Expected price for token", nextTokenIndex, ":", expectedPrice, "USDC");
+    
+    // Try to read claim conditions for the specific next token ID
+    // Since you've set up pricing per individual token, we need to check the next token's conditions
     try {
-      // Get all claim conditions to find the correct pricing tier
-      const allClaimConditions = await getClaimConditions({ 
+      // For ERC1155 Edition Drop, each token can have its own claim conditions
+      // We need to get the claim conditions for the next token to be minted
+      const nextTokenId = BigInt(nextTokenIndex);
+      
+      console.log("Checking claim conditions for token ID:", nextTokenId.toString());
+      
+      const tokenClaimConditions = await getClaimConditions({ 
         contract, 
-        tokenId: defaultTokenId 
+        tokenId: nextTokenId 
       });
-      console.log("ERC1155 all claim conditions count:", allClaimConditions?.length || 0);
       
-      let activeClaimCondition = null;
+      console.log("Claim conditions for token", nextTokenId.toString(), "count:", tokenClaimConditions?.length || 0);
       
-      if (allClaimConditions && allClaimConditions.length > 0) {
-        // Find the claim condition that applies to the current supply
-        // Sort by maxClaimableSupply to find the right tier
-        const sortedConditions = allClaimConditions.sort((a, b) => {
-          const aMax = Number(a.maxClaimableSupply || 0);
-          const bMax = Number(b.maxClaimableSupply || 0);
-          return aMax - bMax;
+      if (tokenClaimConditions && tokenClaimConditions.length > 0) {
+        // Use the first (and likely only) claim condition for this specific token
+        const tokenCondition = tokenClaimConditions[0];
+        
+        console.log("Token", nextTokenId.toString(), "claim condition:", {
+          pricePerToken: tokenCondition.pricePerToken?.toString(),
+          currency: tokenCondition.currency,
+          maxClaimableSupply: tokenCondition.maxClaimableSupply?.toString()
         });
         
-        // Find the condition where currentSupply < maxClaimableSupply
-        for (const condition of sortedConditions) {
-          const maxSupply = Number(condition.maxClaimableSupply || 0);
-          if (currentSupply < maxSupply || maxSupply === 0) {
-            activeClaimCondition = condition;
-            console.log("Found matching claim condition for supply", currentSupply.toString(), "with max", maxSupply);
-            break;
-          }
-        }
-        
-        // Fallback to first condition if no match
-        if (!activeClaimCondition) {
-          activeClaimCondition = sortedConditions[0];
-          console.log("Using fallback claim condition");
-        }
-      }
-      
-      console.log("Selected claim condition found:", activeClaimCondition ? "Yes" : "No");
-      if (activeClaimCondition) {
-        console.log("Price per token:", activeClaimCondition.pricePerToken?.toString());
-        console.log("Currency:", activeClaimCondition.currency);
-      }
-      
-      if (activeClaimCondition) {
-        // Check if it's ETH (0x0000000000000000000000000000000000000000) or ERC20
-        if (activeClaimCondition.currency === "0x0000000000000000000000000000000000000000") {
+        // Use the actual price from this token's claim condition
+        if (tokenCondition.currency === "0x0000000000000000000000000000000000000000") {
           // ETH payment - convert from wei to ETH
-          const contractPrice = Number(activeClaimCondition.pricePerToken) / 1e18;
+          pricePerToken = Number(tokenCondition.pricePerToken) / 1e18;
           currencySymbol = "ETH";
-          // Use expected price for dynamic pricing, contract price as fallback
-          pricePerToken = expectedPrice;
-          console.log("Contract price:", contractPrice, "ETH, Using expected price:", pricePerToken, "ETH");
+          console.log("Using token-specific ETH pricing:", pricePerToken, "ETH");
         } else {
           // ERC20 token - assume USDC (6 decimals)
-          const contractPrice = Number(activeClaimCondition.pricePerToken) / 1e6;
+          pricePerToken = Number(tokenCondition.pricePerToken) / 1e6;
           currencySymbol = "USDC";
-          // Use the actual contract price from the correct tier
-          pricePerToken = contractPrice;
-          console.log("Using contract price from claim condition:", pricePerToken, "USDC");
+          console.log("Using token-specific USDC pricing:", pricePerToken, "USDC");
         }
         
-        // Verify currency
-        if (activeClaimCondition.currency && activeClaimCondition.currency !== "0x0000000000000000000000000000000000000000") {
+        // Verify currency metadata
+        if (tokenCondition.currency && tokenCondition.currency !== "0x0000000000000000000000000000000000000000") {
           try {
             const currencyMetadata = await getCurrencyMetadata({
               contract: getContract({
-                address: activeClaimCondition.currency,
+                address: tokenCondition.currency,
                 chain: defaultChain,
                 client,
               }),
             });
-            
+
             if (currencyMetadata) {
               currencySymbol = currencyMetadata.symbol;
-              console.log("Currency confirmed from active condition:", currencySymbol);
+              console.log("Currency confirmed for token", nextTokenId.toString(), ":", currencySymbol);
             }
           } catch (error) {
-            console.log("Could not fetch currency metadata from active condition, assuming USDC");
+            console.log("Could not fetch currency metadata for token", nextTokenId.toString(), ", using default");
           }
         }
       } else {
-        console.log("No claim conditions found, using expected price");
+        console.log("No claim conditions found for token", nextTokenId.toString(), ", using expected price");
         pricePerToken = expectedPrice;
+        currencySymbol = "USDC";
       }
     } catch (error) {
-      console.log("Could not fetch ERC1155 claim conditions:", error);
-      console.log("Using default USDC pricing");
+      console.log("Could not fetch claim conditions for next token:", error);
+      console.log("Using expected price with default USDC");
+      pricePerToken = expectedPrice;
+      currencySymbol = "USDC";
     }
     
   } catch (error) {
