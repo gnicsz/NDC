@@ -99,15 +99,7 @@ a[href*="thirdweb.com"] {
   display: none !important;
 }
 
-/* Replace "New to wallets?" with "Join the Club" */
-div:has-text("New to wallets?")::before {
-  content: "Join the Club" !important;
-  display: block !important;
-}
-
-div:has-text("New to wallets?") {
-  font-size: 0 !important;
-}
+/* Text replacement handled by JavaScript */
 
 /* Hide modal footer section completely */
 [data-testid="connectWallet-footer"],
