@@ -93,11 +93,20 @@ body {
 
 /* Hide thirdweb branding in modal footer */
 .css-1d4s0we,
-div:has-text("New to wallets?"),
 div:has-text("Get started"),
 div:has-text("Powered by"),
 a[href*="thirdweb.com"] {
   display: none !important;
+}
+
+/* Replace "New to wallets?" with "Join the Club" */
+div:has-text("New to wallets?")::before {
+  content: "Join the Club" !important;
+  display: block !important;
+}
+
+div:has-text("New to wallets?") {
+  font-size: 0 !important;
 }
 
 /* Hide modal footer section completely */
@@ -109,7 +118,6 @@ div[style*="padding-top"]:has(a[href*="thirdweb"]) {
 
 /* Target footer by structure - hide divs containing wallet help links */
 div:has(> a[href*="blog.thirdweb.com"]),
-div:has(> div:has-text("New to wallets?")),
 div:has(> div:has-text("Powered by")) {
   display: none !important;
 }
@@ -117,7 +125,6 @@ div:has(> div:has-text("Powered by")) {
 /* More aggressive footer hiding - target by common patterns */
 div[style*="justify-content: space-between"]:has(a),
 div[style*="align-items: center"]:has(a[href*="thirdweb"]),
-div:has(span:contains("New to wallets")),
 div:has(span:contains("Powered by")),
 footer,
 [role="contentinfo"] {
