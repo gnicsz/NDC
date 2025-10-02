@@ -82,6 +82,34 @@ export function MinimalNftMint(props: Props) {
 		setImageError(false);
 	}, [nextTokenId]);
 
+	// Remove thirdweb branding dynamically
+	useEffect(() => {
+		const removeThirdwebBranding = () => {
+			// Remove elements containing "Powered by" text
+			const allElements = document.querySelectorAll('div, span');
+			allElements.forEach(el => {
+				if (el.textContent?.includes('Powered by')) {
+					el.style.display = 'none';
+					el.remove();
+				}
+			});
+
+			// Remove specific thirdweb SVG
+			const thirdwebSvgs = document.querySelectorAll('svg[viewBox="0 0 74 11"]');
+			thirdwebSvgs.forEach(svg => svg.parentElement?.remove());
+
+			// Remove by class name
+			const brandingElements = document.querySelectorAll('.css-1d4s0we');
+			brandingElements.forEach(el => el.remove());
+		};
+
+		// Run immediately and on interval to catch dynamically added elements
+		removeThirdwebBranding();
+		const interval = setInterval(removeThirdwebBranding, 500);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	if (loading) {
 		return (
 			<div className="min-h-screen bg-black flex items-center justify-center">
