@@ -154,6 +154,13 @@ export function MinimalNftMint(props: Props) {
 				<ConnectButton 
 					client={client} 
 					theme="dark"
+					wallets={[
+						"io.metamask",
+						"com.coinbase.wallet", 
+						"me.rainbow",
+						"io.rabby",
+						"io.zerion.wallet",
+					]}
 					connectModal={{
 						size: "compact",
 						titleIcon: "",
