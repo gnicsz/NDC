@@ -64,7 +64,7 @@ export async function getERC1155Info(contract: ThirdwebContract) {
           // ERC20 token - assume USDC (6 decimals)
           pricePerToken = Number(tokenCondition.pricePerToken) / 1e6;
           currencySymbol = "USDC";
-          console.log("Using token-specific USDC pricing:", pricePerToken, "USDC");
+          console.log("✅ Using token-specific USDC pricing:", pricePerToken, "USDC");
         }
         
         // Verify currency metadata
