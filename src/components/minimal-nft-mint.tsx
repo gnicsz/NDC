@@ -199,6 +199,8 @@ export function MinimalNftMint(props: Props) {
 								tokenId: nextTokenId,
 								quantity: 1n,
 								to: account.address,
+								// Explicitly override price for all wallets (especially Phantom)
+								pricePerToken: props.pricePerToken ? BigInt(Math.floor(props.pricePerToken * 1e6)) : undefined,
 							}}
 							style={{
 								backgroundColor: "#ffffff",
