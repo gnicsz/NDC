@@ -113,4 +113,24 @@ span:contains("Powered by"),
 .css-1d4s0we {
   display: none !important;
 }
+
+/* Hide Vercel and hosting provider branding */
+div:contains("vercel"),
+div:contains("Vercel"),
+span:contains("vercel"),
+span:contains("Vercel"),
+a[href*="vercel"],
+div:contains(".vercel.app"),
+div:contains("vercel.app"),
+span:contains(".vercel.app"),
+span:contains("vercel.app") {
+  display: none !important;
+}
+
+/* Override any default favicons */
+link[rel="icon"][href*="vercel"],
+link[rel="shortcut icon"][href*="vercel"],
+link[rel="apple-touch-icon"][href*="vercel"] {
+  display: none !important;
+}
 }
