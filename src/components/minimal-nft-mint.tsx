@@ -93,28 +93,6 @@ export function MinimalNftMint(props: Props) {
 		setImageError(false);
 	}, [nextTokenId]);
 
-	// Replace "New to wallets?" with "Join the Club" dynamically
-	useEffect(() => {
-		const replaceWalletText = () => {
-			// Find all elements containing "New to wallets?" text
-			const allElements = document.querySelectorAll('*');
-			allElements.forEach(el => {
-				if (el.textContent === 'New to wallets?') {
-					el.textContent = 'Join the Club';
-				}
-				// Also check for partial matches
-				if (el.textContent?.includes('New to wallets?')) {
-					el.innerHTML = el.innerHTML.replace('New to wallets?', 'Join the Club');
-				}
-			});
-		};
-
-		// Run immediately and on interval to catch dynamically added elements
-		replaceWalletText();
-		const interval = setInterval(replaceWalletText, 1000);
-
-		return () => clearInterval(interval);
-	}, []);
 
 	if (loading) {
 		return (

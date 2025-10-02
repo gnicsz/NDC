@@ -91,41 +91,26 @@ body {
   z-index: 9999 !important;
 }
 
-/* Hide thirdweb branding in modal footer */
-.css-1d4s0we,
-div:has-text("Get started"),
-div:has-text("Powered by"),
-a[href*="thirdweb.com"] {
-  display: none !important;
-}
-
-/* Text replacement handled by JavaScript */
-
-/* Hide modal footer section completely */
+/* Hide thirdweb branding and footer elements completely */
 [data-testid="connectWallet-footer"],
 div[style*="border-top"],
-div[style*="padding-top"]:has(a[href*="thirdweb"]) {
-  display: none !important;
-}
-
-/* Target footer by structure - hide divs containing wallet help links */
+div[style*="padding-top"]:has(a[href*="thirdweb"]),
 div:has(> a[href*="blog.thirdweb.com"]),
-div:has(> div:has-text("Powered by")) {
-  display: none !important;
-}
-
-/* More aggressive footer hiding - target by common patterns */
 div[style*="justify-content: space-between"]:has(a),
 div[style*="align-items: center"]:has(a[href*="thirdweb"]),
-div:has(span:contains("Powered by")),
 footer,
-[role="contentinfo"] {
+[role="contentinfo"],
+a[href*="thirdweb"],
+a[href*="blog.thirdweb"] {
   display: none !important;
 }
 
-/* Hide any link containing thirdweb */
-a[href*="thirdweb"],
-a[href*="blog.thirdweb"] {
+/* Hide "New to wallets?" and "Powered by" text elements */
+div:contains("New to wallets?"),
+div:contains("Get started"),
+div:contains("Powered by"),
+span:contains("Powered by"),
+.css-1d4s0we {
   display: none !important;
 }
 }
