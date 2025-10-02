@@ -216,6 +216,11 @@ export function MinimalNftMint(props: Props) {
 								setNextTokenId(prev => prev + 1n);
 								setNextNftData(null);
 								setImageError(false);
+								
+								// Force a complete page refresh after 3 seconds to get updated pricing
+								setTimeout(() => {
+									window.location.reload();
+								}, 3000);
 							}}
 							onError={(err) => toast.error(err.message)}
 						>
