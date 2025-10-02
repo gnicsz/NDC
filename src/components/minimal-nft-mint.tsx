@@ -49,23 +49,40 @@ export function MinimalNftMint(props: Props) {
 			try {
 				setLoading(true);
 				
-				// For ERC1155, we use the defaultTokenId (0) and check total supply for that token
-				let tokenId = defaultTokenId;
+				// Find the next token ID to mint by checking each token sequentially
+				let nextTokenIndex = 0;
 				
-				// Try to get the total supply for the ERC1155 token
-				try {
-					const totalSupplyCount = await getERC1155TotalSupply({ 
-						contract: props.contract, 
-						id: defaultTokenId 
-					});
-					console.log("ERC1155 Total supply for token", defaultTokenId.toString(), ":", totalSupplyCount.toString());
-					
-					// For ERC1155, we always mint token ID 0, but track how many have been minted
-					setNextTokenId(totalSupplyCount); // This represents the count, not the token ID
-				} catch (error) {
-					console.log("Could not get ERC1155 total supply, using default");
-					setNextTokenId(0n);
+				// Check tokens starting from 0 until we find one that hasn't been minted
+				while (true) {
+					try {
+						const tokenSupply = await getERC1155TotalSupply({ 
+							contract: props.contract, 
+							id: BigInt(nextTokenIndex) 
+						});
+						console.log(`Frontend: Token ${nextTokenIndex} supply:`, tokenSupply.toString());
+						
+						if (tokenSupply === 0n) {
+							// This token hasn't been minted yet, so it's the next one
+							break;
+						}
+						
+						nextTokenIndex++;
+						
+						// Safety check to prevent infinite loop (max 1000 tokens)
+						if (nextTokenIndex > 1000) {
+							console.log("Frontend: Reached maximum token check limit, using token 0");
+							nextTokenIndex = 0;
+							break;
+						}
+					} catch (error) {
+						// If we can't get supply for this token, it probably doesn't exist yet
+						console.log(`Frontend: Token ${nextTokenIndex} doesn't exist yet, using this as next token`);
+						break;
+					}
 				}
+				
+				console.log("Frontend: Next token index to mint:", nextTokenIndex);
+				setNextTokenId(BigInt(nextTokenIndex));
 				
 				// Try to get metadata for the ERC1155 token
 				try {

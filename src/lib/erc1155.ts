@@ -16,12 +16,35 @@ export async function getERC1155Info(contract: ThirdwebContract) {
   let currencySymbol = "USDC";
   
   try {
-    // Get current total supply to find the next token ID to mint
-    const currentSupply = await totalSupply({ contract, id: defaultTokenId });
-    console.log("Current ERC1155 supply for token", defaultTokenId.toString(), ":", currentSupply.toString());
-
-    // The next token to mint will be at index currentSupply (0-based indexing)
-    const nextTokenIndex = Number(currentSupply);
+    // Find the next token ID to mint by checking each token sequentially
+    let nextTokenIndex = 0;
+    
+    // Check tokens starting from 0 until we find one that hasn't been minted
+    while (true) {
+      try {
+        const tokenSupply = await totalSupply({ contract, id: BigInt(nextTokenIndex) });
+        console.log(`Token ${nextTokenIndex} supply:`, tokenSupply.toString());
+        
+        if (tokenSupply === 0n) {
+          // This token hasn't been minted yet, so it's the next one
+          break;
+        }
+        
+        nextTokenIndex++;
+        
+        // Safety check to prevent infinite loop (max 1000 tokens)
+        if (nextTokenIndex > 1000) {
+          console.log("Reached maximum token check limit, using token 0");
+          nextTokenIndex = 0;
+          break;
+        }
+      } catch (error) {
+        // If we can't get supply for this token, it probably doesn't exist yet
+        console.log(`Token ${nextTokenIndex} doesn't exist yet, using this as next token`);
+        break;
+      }
+    }
+    
     console.log("Next token index to mint:", nextTokenIndex);
     
     // For your setup: token 0 = 1 USDC, token 1 = 2 USDC, token 2 = 3 USDC, etc.
