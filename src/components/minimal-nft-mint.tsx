@@ -93,33 +93,7 @@ export function MinimalNftMint(props: Props) {
 		setImageError(false);
 	}, [nextTokenId]);
 
-	// Remove thirdweb branding dynamically
-	useEffect(() => {
-		const removeThirdwebBranding = () => {
-			// Remove elements containing "Powered by" text
-			const allElements = document.querySelectorAll('div, span');
-			allElements.forEach(el => {
-				if (el.textContent?.includes('Powered by')) {
-					(el as HTMLElement).style.display = 'none';
-					el.remove();
-				}
-			});
-
-			// Remove specific thirdweb SVG
-			const thirdwebSvgs = document.querySelectorAll('svg[viewBox="0 0 74 11"]');
-			thirdwebSvgs.forEach(svg => svg.parentElement?.remove());
-
-			// Remove by class name
-			const brandingElements = document.querySelectorAll('.css-1d4s0we');
-			brandingElements.forEach(el => el.remove());
-		};
-
-		// Run immediately and on interval to catch dynamically added elements
-		removeThirdwebBranding();
-		const interval = setInterval(removeThirdwebBranding, 500);
-
-		return () => clearInterval(interval);
-	}, []);
+	// Note: Removed aggressive branding removal to prevent modal interference
 
 	if (loading) {
 		return (
@@ -161,16 +135,11 @@ export function MinimalNftMint(props: Props) {
 			</div>
 
 			{/* Connect Button - Top Right */}
-			<div className="absolute top-8 right-8">
+			<div className="absolute top-8 right-8 z-50">
 				<ConnectButton
 					client={client}
 					wallets={wallets}
 					theme="dark"
-					connectModal={{
-						showThirdwebBranding: false,
-						size: "compact",
-						title: "Join the Club",
-					}}
 				/>
 			</div>
 
