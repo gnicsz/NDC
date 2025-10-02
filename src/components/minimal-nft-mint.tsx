@@ -164,32 +164,13 @@ export function MinimalNftMint(props: Props) {
 			<div className="absolute top-8 right-8">
 				<ConnectButton
 					client={client}
+					wallets={wallets}
+					theme="dark"
 					connectModal={{
 						showThirdwebBranding: false,
 						size: "compact",
 						title: "Join the Club",
 					}}
-					theme={darkTheme({
-						colors: {
-							accentText: "hsl(20, 100%, 50%)",
-							skeletonBg: "hsl(0, 0%, 9%)",
-							tertiaryBg: "hsl(0, 0%, 6%)",
-							scrollbarBg: "hsl(0, 0%, 11%)",
-							inputAutofillBg: "hsl(0, 0%, 8%)",
-							tooltipText: "hsl(228, 12%, 8%)",
-							connectedButtonBg: "hsl(0, 0%, 6%)",
-							connectedButtonBgHover: "hsl(0, 0%, 6%)",
-							accentButtonText: "hsl(240, 6%, 94%)",
-							accentButtonBg: "hsl(216, 100%, 50%)",
-							secondaryButtonHoverBg: "hsl(0, 0%, 0%)",
-							secondaryButtonBg: "hsl(0, 0%, 9%)",
-							primaryButtonText: "hsl(0, 0%, 4%)",
-							primaryButtonBg: "hsl(240, 6%, 94%)",
-							borderColor: "hsl(0, 0%, 9%)",
-							separatorLine: "hsl(0, 0%, 28%)",
-						},
-					})}
-					wallets={wallets}
 				/>
 			</div>
 
