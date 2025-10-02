@@ -100,7 +100,7 @@ export function MinimalNftMint(props: Props) {
 			const allElements = document.querySelectorAll('div, span');
 			allElements.forEach(el => {
 				if (el.textContent?.includes('Powered by')) {
-					el.style.display = 'none';
+					(el as HTMLElement).style.display = 'none';
 					el.remove();
 				}
 			});
