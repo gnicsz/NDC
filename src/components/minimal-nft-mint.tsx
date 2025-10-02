@@ -123,7 +123,18 @@ export function MinimalNftMint(props: Props) {
 
 			{/* Connect Button - Top Right */}
 			<div className="absolute top-8 right-8">
-				<ConnectButton client={client} theme="dark" />
+				<ConnectButton 
+					client={client} 
+					theme="dark"
+					connectModal={{
+						size: "compact",
+						titleIcon: "",
+						showThirdwebBranding: false,
+					}}
+					detailsModal={{
+						showThirdwebBranding: false,
+					}}
+				/>
 			</div>
 
 			{/* Spacer */}
