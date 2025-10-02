@@ -9,7 +9,10 @@ import {
 	useActiveAccount,
 	MediaRenderer,
 	darkTheme,
+	TransactionButton,
 } from "thirdweb/react";
+import { TransactionWidget } from "thirdweb/react";
+import { claimTo } from "thirdweb/extensions/erc1155";
 import { createWallet } from "thirdweb/wallets";
 import { client } from "@/lib/thirdwebClient";
 import { toast } from "sonner";
@@ -186,46 +189,49 @@ export function MinimalNftMint(props: Props) {
 						</div>
 					)}
 
-					{/* Claim Button */}
+					{/* Clean Payment & Mint Widget */}
 					{account ? (
-						<ClaimButton
-							contractAddress={props.contract.address}
-							chain={props.contract.chain}
-							client={props.contract.client}
-							claimParams={{
-								type: "ERC1155",
-								tokenId: defaultTokenId,
-								quantity: 1n,
-								to: account.address,
-							}}
-							style={{
-								backgroundColor: "#ffffff",
-								color: "#000000",
-								width: "100%",
-								padding: "12px 24px",
-								borderRadius: "8px",
-								border: "none",
-								fontSize: "16px",
-								fontWeight: "600",
-								cursor: "pointer",
-							}}
-							onTransactionSent={() => toast.info("Minting NFT...")}
-							onTransactionConfirmed={() => {
-								toast.success("Minted successfully!");
-								// Refresh the next token ID and reset image error
-								setNextTokenId(prev => prev + 1n);
-								setNextNftData(null);
-								setImageError(false);
-								
-								// Force a complete page refresh after 3 seconds to get updated pricing
-								setTimeout(() => {
-									window.location.reload();
-								}, 3000);
-							}}
-							onError={(err) => toast.error(err.message)}
-						>
-							join now
-						</ClaimButton>
+						<div className="w-full">
+							<TransactionWidget
+								client={client}
+								chain={props.contract.chain}
+								transaction={() => 
+									claimTo({
+										contract: props.contract,
+										tokenId: defaultTokenId,
+										quantity: 1n,
+										to: account.address,
+									})
+								}
+								onSuccess={() => {
+									toast.success("Welcome to Next Dollar Club! 🎉");
+									// Refresh the next token ID and reset image error
+									setNextTokenId(prev => prev + 1n);
+									setNextNftData(null);
+									setImageError(false);
+									
+									// Force a complete page refresh after 3 seconds to get updated pricing
+									setTimeout(() => {
+										window.location.reload();
+									}, 3000);
+								}}
+								onError={(error) => {
+									toast.error("Transaction failed: " + error.message);
+								}}
+								theme="dark"
+								style={{
+									width: "100%",
+									borderRadius: "12px",
+									backgroundColor: "#ffffff",
+									color: "#000000",
+								}}
+								connectOptions={{
+									connectButton: {
+										label: "Connect to join",
+									},
+								}}
+							/>
+						</div>
 					) : (
 						<ConnectButton
 							client={client}

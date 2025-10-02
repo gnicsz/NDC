@@ -105,6 +105,60 @@ a[href*="blog.thirdweb"] {
   display: none !important;
 }
 
+/* Simplify transaction UI - hide verbose details */
+div:contains("Transaction Details"),
+div:contains("Gas Limit"),
+div:contains("Gas Price"),
+div:contains("Max Fee"),
+div:contains("Priority Fee"),
+.transaction-details,
+[data-testid="transaction-details"] {
+  display: none !important;
+}
+
+/* Clean up approval flow UI */
+div:contains("Approve spending cap"),
+div:contains("spending cap") {
+  font-size: 14px !important;
+}
+
+/* Hide complex transaction data */
+pre,
+code:contains("0x"),
+div:contains("calldata"),
+div:contains("Function"),
+div:contains("Parameters"),
+div:contains("Raw Data"),
+.transaction-raw-data,
+[data-testid="raw-data"] {
+  display: none !important;
+}
+
+/* Simplify wallet transaction modals */
+div:contains("Estimated Gas"),
+div:contains("Network Fee"),
+div:contains("Total Cost"),
+.gas-estimation,
+.network-fee-details {
+  font-size: 12px !important;
+  opacity: 0.7 !important;
+}
+
+/* Clean up approval messages */
+div:contains("This will approve"),
+div:contains("spending limit"),
+div:contains("You can revoke this approval") {
+  font-size: 13px !important;
+  color: #888 !important;
+}
+
+/* Hide verbose transaction details in modals */
+details,
+summary,
+.collapsible-section {
+  display: none !important;
+}
+
 /* Hide "New to wallets?" and "Powered by" text elements */
 div:contains("New to wallets?"),
 div:contains("Get started"),

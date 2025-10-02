@@ -32,11 +32,24 @@ export async function getERC1155Info(contract: ThirdwebContract) {
         contract, 
         tokenId: defaultTokenId 
       });
-      console.log("ERC1155 active claim condition:", JSON.stringify(activeClaimCondition, null, 2));
+      console.log("ERC1155 active claim condition found:", activeClaimCondition ? "Yes" : "No");
+      if (activeClaimCondition) {
+        console.log("Price per token:", activeClaimCondition.pricePerToken?.toString());
+        console.log("Currency:", activeClaimCondition.currency);
+      }
       
       if (activeClaimCondition) {
         // Use the price from the active claim condition
-        pricePerToken = Number(activeClaimCondition.pricePerToken) / 1e6; // Convert from wei to USDC (6 decimals)
+        // Check if it's ETH (0x0000000000000000000000000000000000000000) or ERC20
+        if (activeClaimCondition.currency === "0x0000000000000000000000000000000000000000") {
+          // ETH payment - convert from wei to ETH
+          pricePerToken = Number(activeClaimCondition.pricePerToken) / 1e18;
+          currencySymbol = "ETH";
+        } else {
+          // ERC20 token - assume USDC (6 decimals)
+          pricePerToken = Number(activeClaimCondition.pricePerToken) / 1e6;
+          currencySymbol = "USDC";
+        }
         console.log("Using active claim condition price:", pricePerToken, "USDC");
         
         // Verify currency
@@ -64,7 +77,7 @@ export async function getERC1155Info(contract: ThirdwebContract) {
           contract, 
           tokenId: defaultTokenId 
         });
-        console.log("ERC1155 all claim conditions:", JSON.stringify(allClaimConditions, null, 2));
+        console.log("ERC1155 all claim conditions count:", allClaimConditions?.length || 0);
         
         if (allClaimConditions && allClaimConditions.length > 0) {
         const firstCondition = allClaimConditions[0];
