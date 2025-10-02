@@ -11,7 +11,6 @@ import {
 	darkTheme,
 	TransactionButton,
 } from "thirdweb/react";
-import { TransactionWidget } from "thirdweb/react";
 import { claimTo } from "thirdweb/extensions/erc1155";
 import { createWallet } from "thirdweb/wallets";
 import { client } from "@/lib/thirdwebClient";
@@ -189,49 +188,50 @@ export function MinimalNftMint(props: Props) {
 						</div>
 					)}
 
-					{/* Clean Payment & Mint Widget */}
+					{/* Enhanced Mint Button */}
 					{account ? (
-						<div className="w-full">
-							<TransactionWidget
-								client={client}
-								chain={props.contract.chain}
-								transaction={() => 
-									claimTo({
-										contract: props.contract,
-										tokenId: defaultTokenId,
-										quantity: 1n,
-										to: account.address,
-									})
-								}
-								onSuccess={() => {
-									toast.success("Welcome to Next Dollar Club! 🎉");
-									// Refresh the next token ID and reset image error
-									setNextTokenId(prev => prev + 1n);
-									setNextNftData(null);
-									setImageError(false);
-									
-									// Force a complete page refresh after 3 seconds to get updated pricing
-									setTimeout(() => {
-										window.location.reload();
-									}, 3000);
-								}}
-								onError={(error) => {
-									toast.error("Transaction failed: " + error.message);
-								}}
-								theme="dark"
-								style={{
-									width: "100%",
-									borderRadius: "12px",
-									backgroundColor: "#ffffff",
-									color: "#000000",
-								}}
-								connectOptions={{
-									connectButton: {
-										label: "Connect to join",
-									},
-								}}
-							/>
-						</div>
+						<ClaimButton
+							contractAddress={props.contract.address}
+							chain={props.contract.chain}
+							client={props.contract.client}
+							claimParams={{
+								type: "ERC1155",
+								tokenId: defaultTokenId,
+								quantity: 1n,
+								to: account.address,
+							}}
+							style={{
+								backgroundColor: "#ffffff",
+								color: "#000000",
+								width: "100%",
+								padding: "16px 24px",
+								borderRadius: "12px",
+								border: "none",
+								fontSize: "18px",
+								fontWeight: "700",
+								cursor: "pointer",
+								textTransform: "uppercase",
+								letterSpacing: "0.5px",
+								boxShadow: "0 4px 12px rgba(255, 255, 255, 0.15)",
+								transition: "all 0.2s ease",
+							}}
+							onTransactionSent={() => toast.info("Processing payment...")}
+							onTransactionConfirmed={() => {
+								toast.success("Welcome to Next Dollar Club! 🎉");
+								// Refresh the next token ID and reset image error
+								setNextTokenId(prev => prev + 1n);
+								setNextNftData(null);
+								setImageError(false);
+								
+								// Force a complete page refresh after 3 seconds to get updated pricing
+								setTimeout(() => {
+									window.location.reload();
+								}, 3000);
+							}}
+							onError={(err) => toast.error(err.message)}
+						>
+							join now
+						</ClaimButton>
 					) : (
 						<ConnectButton
 							client={client}

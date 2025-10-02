@@ -50,7 +50,7 @@ export async function getERC1155Info(contract: ThirdwebContract) {
           pricePerToken = Number(activeClaimCondition.pricePerToken) / 1e6;
           currencySymbol = "USDC";
         }
-        console.log("Using active claim condition price:", pricePerToken, "USDC");
+        console.log("Using active claim condition price:", pricePerToken, currencySymbol);
         
         // Verify currency
         if (activeClaimCondition.currency && activeClaimCondition.currency !== "0x0000000000000000000000000000000000000000") {
