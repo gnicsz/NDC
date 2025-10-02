@@ -25,15 +25,48 @@ export async function getERC1155Info(contract: ThirdwebContract) {
     
     console.log("Next token price:", pricePerToken, "USDC");
     
-    // Try to get claim conditions to verify USDC address
+    // Try to get active claim condition for current pricing
     try {
-      const allClaimConditions = await getClaimConditions({ 
+      // First try to get the active claim condition
+      const activeClaimCondition = await getActiveClaimCondition({ 
         contract, 
         tokenId: defaultTokenId 
       });
-      console.log("ERC1155 claim conditions:", JSON.stringify(allClaimConditions, null, 2));
+      console.log("ERC1155 active claim condition:", JSON.stringify(activeClaimCondition, null, 2));
       
-      if (allClaimConditions && allClaimConditions.length > 0) {
+      if (activeClaimCondition) {
+        // Use the price from the active claim condition
+        pricePerToken = Number(activeClaimCondition.pricePerToken) / 1e6; // Convert from wei to USDC (6 decimals)
+        console.log("Using active claim condition price:", pricePerToken, "USDC");
+        
+        // Verify currency
+        if (activeClaimCondition.currency && activeClaimCondition.currency !== "0x0000000000000000000000000000000000000000") {
+          try {
+            const currencyMetadata = await getCurrencyMetadata({
+              contract: getContract({
+                address: activeClaimCondition.currency,
+                chain: defaultChain,
+                client,
+              }),
+            });
+            
+            if (currencyMetadata) {
+              currencySymbol = currencyMetadata.symbol;
+              console.log("Currency confirmed from active condition:", currencySymbol);
+            }
+          } catch (error) {
+            console.log("Could not fetch currency metadata from active condition, assuming USDC");
+          }
+        }
+      } else {
+        // Fallback to getting all claim conditions
+        const allClaimConditions = await getClaimConditions({ 
+          contract, 
+          tokenId: defaultTokenId 
+        });
+        console.log("ERC1155 all claim conditions:", JSON.stringify(allClaimConditions, null, 2));
+        
+        if (allClaimConditions && allClaimConditions.length > 0) {
         const firstCondition = allClaimConditions[0];
         
         if (firstCondition?.currency && firstCondition.currency !== "0x0000000000000000000000000000000000000000") {
@@ -55,9 +88,11 @@ export async function getERC1155Info(contract: ThirdwebContract) {
             console.log("Could not fetch currency metadata, assuming USDC");
           }
         }
+        }
       }
     } catch (error) {
-      console.log("Could not fetch ERC1155 claim conditions, using default USDC pricing");
+      console.log("Could not fetch ERC1155 claim conditions:", error);
+      console.log("Using default USDC pricing");
     }
     
   } catch (error) {
