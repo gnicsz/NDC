@@ -130,9 +130,16 @@ export function MinimalNftMint(props: Props) {
 						size: "compact",
 						titleIcon: "",
 						showThirdwebBranding: false,
+						welcomeScreen: {
+							title: "Connect Wallet",
+							subtitle: "Join the Next Dollar Club",
+						},
 					}}
 					detailsModal={{
 						showThirdwebBranding: false,
+					}}
+					connectButton={{
+						label: "Connect Wallet",
 					}}
 				/>
 			</div>

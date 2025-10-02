@@ -82,7 +82,19 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-black text-white;
-  }
+body {
+  @apply bg-black text-white;
+}
+
+/* Hide thirdweb branding */
+[data-testid="powered-by-thirdweb"],
+.css-1d4s0we,
+div[style*="Powered by"] {
+  display: none !important;
+}
+
+/* Hide any elements containing thirdweb branding */
+div:has(svg[role="presentation"]) {
+  display: none !important;
+}
 }
