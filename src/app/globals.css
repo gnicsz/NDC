@@ -91,13 +91,42 @@ body {
   z-index: 9999 !important;
 }
 
-/* Hide only specific thirdweb branding without breaking modals */
-.css-1d4s0we {
+/* Hide thirdweb branding in modal footer */
+.css-1d4s0we,
+div:has-text("New to wallets?"),
+div:has-text("Get started"),
+div:has-text("Powered by"),
+a[href*="thirdweb.com"] {
   display: none !important;
 }
 
-/* Hide thirdweb branding text */
-span:has-text("Powered by") {
+/* Hide modal footer section completely */
+[data-testid="connectWallet-footer"],
+div[style*="border-top"],
+div[style*="padding-top"]:has(a[href*="thirdweb"]) {
+  display: none !important;
+}
+
+/* Target footer by structure - hide divs containing wallet help links */
+div:has(> a[href*="blog.thirdweb.com"]),
+div:has(> div:has-text("New to wallets?")),
+div:has(> div:has-text("Powered by")) {
+  display: none !important;
+}
+
+/* More aggressive footer hiding - target by common patterns */
+div[style*="justify-content: space-between"]:has(a),
+div[style*="align-items: center"]:has(a[href*="thirdweb"]),
+div:has(span:contains("New to wallets")),
+div:has(span:contains("Powered by")),
+footer,
+[role="contentinfo"] {
+  display: none !important;
+}
+
+/* Hide any link containing thirdweb */
+a[href*="thirdweb"],
+a[href*="blog.thirdweb"] {
   display: none !important;
 }
 }
