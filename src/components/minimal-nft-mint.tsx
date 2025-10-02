@@ -146,6 +146,11 @@ export function MinimalNftMint(props: Props) {
 						description: "Join the Next Dollar Club - Mint your exclusive NFT",
 						url: "https://nextdollarclub.com"
 					}}
+					connectModal={{
+						size: "wide",
+						titleIcon: "",
+						showThirdwebBranding: false,
+					}}
 				/>
 			</div>
 
