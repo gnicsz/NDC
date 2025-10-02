@@ -8,7 +8,9 @@ import {
 	ConnectButton,
 	useActiveAccount,
 	MediaRenderer,
+	darkTheme,
 } from "thirdweb/react";
+import { createWallet } from "thirdweb/wallets";
 import { client } from "@/lib/thirdwebClient";
 import { toast } from "sonner";
 import { getNFT as getERC721NFT, totalSupply as getERC721TotalSupply } from "thirdweb/extensions/erc721";
@@ -23,6 +25,15 @@ type Props = {
 	pricePerToken: number | null;
 	currencySymbol: string | null;
 };
+
+// Create wallets for the custom ConnectButton
+const wallets = [
+	createWallet("io.metamask"),
+	createWallet("com.coinbase.wallet"),
+	createWallet("me.rainbow"),
+	createWallet("io.rabby"),
+	createWallet("io.zerion.wallet"),
+];
 
 export function MinimalNftMint(props: Props) {
 	const account = useActiveAccount();
@@ -151,31 +162,34 @@ export function MinimalNftMint(props: Props) {
 
 			{/* Connect Button - Top Right */}
 			<div className="absolute top-8 right-8">
-				<ConnectButton 
-					client={client} 
-					theme="dark"
-					wallets={[
-						"io.metamask",
-						"com.coinbase.wallet", 
-						"me.rainbow",
-						"io.rabby",
-						"io.zerion.wallet",
-					]}
+				<ConnectButton
+					client={client}
 					connectModal={{
+						showThirdwebBranding: false,
 						size: "compact",
-						titleIcon: "",
-						showThirdwebBranding: false,
-						welcomeScreen: {
-							title: "Connect Wallet",
-							subtitle: "Join the Next Dollar Club",
+						title: "Join the Club",
+					}}
+					theme={darkTheme({
+						colors: {
+							accentText: "hsl(20, 100%, 50%)",
+							skeletonBg: "hsl(0, 0%, 9%)",
+							tertiaryBg: "hsl(0, 0%, 6%)",
+							scrollbarBg: "hsl(0, 0%, 11%)",
+							inputAutofillBg: "hsl(0, 0%, 8%)",
+							tooltipText: "hsl(228, 12%, 8%)",
+							connectedButtonBg: "hsl(0, 0%, 6%)",
+							connectedButtonBgHover: "hsl(0, 0%, 6%)",
+							accentButtonText: "hsl(240, 6%, 94%)",
+							accentButtonBg: "hsl(216, 100%, 50%)",
+							secondaryButtonHoverBg: "hsl(0, 0%, 0%)",
+							secondaryButtonBg: "hsl(0, 0%, 9%)",
+							primaryButtonText: "hsl(0, 0%, 4%)",
+							primaryButtonBg: "hsl(240, 6%, 94%)",
+							borderColor: "hsl(0, 0%, 9%)",
+							separatorLine: "hsl(0, 0%, 28%)",
 						},
-					}}
-					detailsModal={{
-						showThirdwebBranding: false,
-					}}
-					connectButton={{
-						label: "Connect Wallet",
-					}}
+					})}
+					wallets={wallets}
 				/>
 			</div>
 
