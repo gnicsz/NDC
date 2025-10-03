@@ -235,7 +235,7 @@ export function MinimalNftMint(props: Props) {
 					className="hover:opacity-80 transition-opacity"
 				>
 					<Image
-						src="/OpenSea.svg"
+						src="/opensea.svg"
 						alt="Next Dollar Club on OpenSea"
 						width={24}
 						height={24}
