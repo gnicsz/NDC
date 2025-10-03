@@ -16,8 +16,10 @@ import { createWallet } from "thirdweb/wallets";
 import { client } from "@/lib/thirdwebClient";
 import { toast } from "sonner";
 import { getNFT as getERC721NFT, totalSupply as getERC721TotalSupply } from "thirdweb/extensions/erc721";
-import { getNFT as getERC1155NFT, totalSupply as getERC1155TotalSupply } from "thirdweb/extensions/erc1155";
-import { defaultTokenId } from "@/lib/constants";
+import { getNFT as getERC1155NFT, totalSupply as getERC1155TotalSupply, getClaimConditions } from "thirdweb/extensions/erc1155";
+import { getCurrencyMetadata } from "thirdweb/extensions/erc20";
+import { getContract } from "thirdweb";
+import { defaultTokenId, defaultChain } from "@/lib/constants";
 
 type Props = {
 	contract: ThirdwebContract;
@@ -43,6 +45,82 @@ export function MinimalNftMint(props: Props) {
 	const [nextNftData, setNextNftData] = useState<any>(null);
 	const [loading, setLoading] = useState(true);
 	const [imageError, setImageError] = useState(false);
+	const [currentPrice, setCurrentPrice] = useState<number>(0);
+	const [currentCurrency, setCurrentCurrency] = useState<string>("USDC");
+
+	// Function to fetch pricing for a specific token ID
+	const fetchTokenPricing = async (tokenId: bigint) => {
+		try {
+			console.log("🔍 Fetching pricing for token ID:", tokenId.toString());
+			
+			const tokenClaimConditions = await getClaimConditions({ 
+				contract: props.contract, 
+				tokenId: tokenId 
+			});
+			
+			console.log("Claim conditions for token", tokenId.toString(), "count:", tokenClaimConditions?.length || 0);
+			
+			if (tokenClaimConditions && tokenClaimConditions.length > 0) {
+				const tokenCondition = tokenClaimConditions[0];
+				
+				console.log("Token", tokenId.toString(), "claim condition:", {
+					pricePerToken: tokenCondition.pricePerToken?.toString(),
+					currency: tokenCondition.currency,
+					maxClaimableSupply: tokenCondition.maxClaimableSupply?.toString()
+				});
+				
+				let price = 0;
+				let currency = "USDC";
+				
+				if (tokenCondition.currency === "0x0000000000000000000000000000000000000000") {
+					// ETH payment - convert from wei to ETH
+					price = Number(tokenCondition.pricePerToken) / 1e18;
+					currency = "ETH";
+					console.log("Using token-specific ETH pricing:", price, "ETH");
+				} else {
+					// ERC20 token - assume USDC (6 decimals)
+					price = Number(tokenCondition.pricePerToken) / 1e6;
+					currency = "USDC";
+					console.log("✅ DYNAMIC PRICING: Using token-specific USDC pricing:", price, "USDC");
+				}
+				
+				// Verify currency metadata
+				if (tokenCondition.currency && tokenCondition.currency !== "0x0000000000000000000000000000000000000000") {
+					try {
+						const currencyMetadata = await getCurrencyMetadata({
+							contract: getContract({
+								address: tokenCondition.currency,
+								chain: defaultChain,
+								client,
+							}),
+						});
+
+						if (currencyMetadata) {
+							currency = currencyMetadata.symbol;
+							console.log("Currency confirmed for token", tokenId.toString(), ":", currency);
+						}
+					} catch (error) {
+						console.log("Could not fetch currency metadata for token", tokenId.toString(), ", using default");
+					}
+				}
+				
+				setCurrentPrice(price);
+				setCurrentCurrency(currency);
+			} else {
+				// Fallback to expected price (token ID + 1)
+				const expectedPrice = Number(tokenId) + 1;
+				console.log("No claim conditions found for token", tokenId.toString(), ", using expected price:", expectedPrice);
+				setCurrentPrice(expectedPrice);
+				setCurrentCurrency("USDC");
+			}
+		} catch (error) {
+			console.log("Could not fetch claim conditions for token", tokenId.toString(), ":", error);
+			// Fallback to expected price
+			const expectedPrice = Number(tokenId) + 1;
+			setCurrentPrice(expectedPrice);
+			setCurrentCurrency("USDC");
+		}
+	};
 
 	useEffect(() => {
 		const fetchNextTokenId = async () => {
@@ -82,7 +160,11 @@ export function MinimalNftMint(props: Props) {
 				}
 				
 				console.log("Frontend: Next token index to mint:", nextTokenIndex);
-				setNextTokenId(BigInt(nextTokenIndex));
+				const newTokenId = BigInt(nextTokenIndex);
+				setNextTokenId(newTokenId);
+				
+				// Fetch pricing for this specific token ID
+				await fetchTokenPricing(newTokenId);
 				
 				// Try to get metadata for the ERC1155 token
 				try {
@@ -110,6 +192,13 @@ export function MinimalNftMint(props: Props) {
 	// Reset image error when token ID changes
 	useEffect(() => {
 		setImageError(false);
+	}, [nextTokenId]);
+
+	// Fetch pricing when token ID changes
+	useEffect(() => {
+		if (nextTokenId !== 0n) {
+			fetchTokenPricing(nextTokenId);
+		}
 	}, [nextTokenId]);
 
 
@@ -202,10 +291,10 @@ export function MinimalNftMint(props: Props) {
 					</p>
 
 					{/* Price Display */}
-					{props.pricePerToken && props.pricePerToken > 0 && (
+					{currentPrice && currentPrice > 0 && (
 						<div className="text-center mb-4">
 							<span className="text-lg font-semibold text-white">
-								{props.pricePerToken} {props.currencySymbol}
+								{currentPrice} {currentCurrency}
 							</span>
 						</div>
 					)}
@@ -216,6 +305,25 @@ export function MinimalNftMint(props: Props) {
 							contractAddress={props.contract.address}
 							chain={props.contract.chain}
 							client={props.contract.client}
+							totalPrice={(() => {
+								// Debug logging to see exactly what we're sending
+								console.log('🔍 DEBUGGING DYNAMIC PRICING:');
+								console.log('currentPrice (ui):', currentPrice);
+								console.log('currentPrice type:', typeof currentPrice);
+								console.log('currentCurrency:', currentCurrency);
+								
+								if (currentPrice && currentPrice > 0) {
+									const calculatedPrice = Math.floor(currentPrice * 1000000);
+									console.log('totalPrice (base units):', calculatedPrice);
+									console.log('totalPrice as BigInt:', BigInt(calculatedPrice));
+									console.log('Expected:', currentPrice, currentCurrency, '=', calculatedPrice, 'wei');
+									console.log('Actual calculation:', currentPrice, '* 1000000 =', calculatedPrice);
+									
+									return BigInt(calculatedPrice);
+								}
+								return undefined;
+							})()}
+							currencyAddress="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" // USDC
 							claimParams={{
 								type: "ERC1155",
 								tokenId: nextTokenId,
@@ -238,17 +346,16 @@ export function MinimalNftMint(props: Props) {
 								transition: "all 0.2s ease",
 							}}
 							onTransactionSent={() => toast.info("Processing payment...")}
-							onTransactionConfirmed={() => {
+							onTransactionConfirmed={async () => {
 								toast.success("Welcome to Next Dollar Club! 🎉");
 								// Refresh the next token ID and reset image error
-								setNextTokenId(prev => prev + 1n);
+								const newTokenId = nextTokenId + 1n;
+								setNextTokenId(newTokenId);
 								setNextNftData(null);
 								setImageError(false);
 								
-								// Force a complete page refresh after 3 seconds to get updated pricing
-								setTimeout(() => {
-									window.location.reload();
-								}, 3000);
+								// Fetch pricing for the new token ID
+								await fetchTokenPricing(newTokenId);
 							}}
 							onError={(err) => toast.error(err.message)}
 						>
