@@ -305,25 +305,6 @@ export function MinimalNftMint(props: Props) {
 							contractAddress={props.contract.address}
 							chain={props.contract.chain}
 							client={props.contract.client}
-							totalPrice={(() => {
-								// Debug logging to see exactly what we're sending
-								console.log('🔍 DEBUGGING DYNAMIC PRICING:');
-								console.log('currentPrice (ui):', currentPrice);
-								console.log('currentPrice type:', typeof currentPrice);
-								console.log('currentCurrency:', currentCurrency);
-								
-								if (currentPrice && currentPrice > 0) {
-									const calculatedPrice = Math.floor(currentPrice * 1000000);
-									console.log('totalPrice (base units):', calculatedPrice);
-									console.log('totalPrice as BigInt:', BigInt(calculatedPrice));
-									console.log('Expected:', currentPrice, currentCurrency, '=', calculatedPrice, 'wei');
-									console.log('Actual calculation:', currentPrice, '* 1000000 =', calculatedPrice);
-									
-									return BigInt(calculatedPrice);
-								}
-								return undefined;
-							})()}
-							currencyAddress="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" // USDC
 							claimParams={{
 								type: "ERC1155",
 								tokenId: nextTokenId,
