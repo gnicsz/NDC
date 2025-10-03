@@ -212,8 +212,8 @@ export function MinimalNftMint(props: Props) {
 
 	return (
 		<div className="min-h-screen bg-black text-white">
-			{/* X (Twitter) Icon - Top Left */}
-			<div className="absolute top-8 left-8">
+			{/* Social Icons - Top Left */}
+			<div className="absolute top-8 left-8 flex gap-4">
 				<a 
 					href="https://x.com/NextDollarClub" 
 					target="_blank" 
@@ -223,6 +223,20 @@ export function MinimalNftMint(props: Props) {
 					<Image
 						src="/X.svg"
 						alt="Next Dollar Club on X"
+						width={24}
+						height={24}
+						className="w-6 h-6"
+					/>
+				</a>
+				<a 
+					href="https://opensea.io/collection/nextdollarclub" 
+					target="_blank" 
+					rel="noopener noreferrer"
+					className="hover:opacity-80 transition-opacity"
+				>
+					<Image
+						src="/OpenSea.svg"
+						alt="Next Dollar Club on OpenSea"
 						width={24}
 						height={24}
 						className="w-6 h-6"
