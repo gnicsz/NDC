@@ -255,8 +255,8 @@ export function MinimalNftMint(props: Props) {
 				/>
 			</div>
 
-			{/* Connect Button - Top Right */}
-			<div className="absolute top-8 right-8 z-50">
+			{/* Connect Button - Hidden on mobile, shown on desktop */}
+			<div className="hidden md:block absolute top-8 right-8 z-50">
 				<ConnectButton
 					client={client}
 					wallets={wallets}
