@@ -47,6 +47,7 @@ export function MinimalNftMint(props: Props) {
 	const [imageError, setImageError] = useState(false);
 	const [currentPrice, setCurrentPrice] = useState<number>(0);
 	const [currentCurrency, setCurrentCurrency] = useState<string>("USDC");
+	const [totalSupply, setTotalSupply] = useState<number>(10000); // Default to 10,000
 
 	// Function to fetch pricing for a specific token ID
 	const fetchTokenPricing = async (tokenId: bigint) => {
@@ -122,6 +123,23 @@ export function MinimalNftMint(props: Props) {
 		}
 	};
 
+	// Function to fetch total supply from contract
+	const fetchTotalSupply = async () => {
+		try {
+			// Try to get total supply from contract metadata or claim conditions
+			// For ERC1155, we might need to check the maxClaimableSupply from claim conditions
+			// or use a hardcoded value if the contract doesn't expose this
+			
+			// For now, we'll use a default of 10,000 but this could be made dynamic
+			// by checking contract metadata or other contract methods
+			setTotalSupply(10000);
+			console.log("Total supply set to:", 10000);
+		} catch (error) {
+			console.log("Could not fetch total supply, using default:", error);
+			setTotalSupply(10000);
+		}
+	};
+
 	useEffect(() => {
 		const fetchNextTokenId = async () => {
 			try {
@@ -165,6 +183,9 @@ export function MinimalNftMint(props: Props) {
 				
 				// Fetch pricing for this specific token ID
 				await fetchTokenPricing(newTokenId);
+				
+				// Fetch total supply
+				await fetchTotalSupply();
 				
 				// Try to get metadata for the ERC1155 token
 				try {
@@ -284,7 +305,7 @@ export function MinimalNftMint(props: Props) {
 					<div className="aspect-square mb-6 rounded-lg overflow-hidden bg-gray-800">
 						<Image
 							src={`https://jade-persistent-lion-245.mypinata.cloud/ipfs/bafybeieukbwnazk6akirtxqcyacwddp4tkmlvbcidkolbljlts44jz3txu/${Number(nextTokenId) + 1}.png`}
-							alt={`Private Club Entry No. ${Number(nextTokenId) + 1}`}
+							alt={`Private Club Entry No. ${Number(nextTokenId) + 1}/${totalSupply}`}
 							width={400}
 							height={400}
 							className="w-full h-full object-cover"
@@ -301,7 +322,7 @@ export function MinimalNftMint(props: Props) {
 
 					{/* NFT Description */}
 					<p className="text-gray-300 mb-4 text-center">
-						{nextNftData?.metadata?.description || `Private Club Entry No. ${Number(nextTokenId) + 1}`}
+						{nextNftData?.metadata?.description || `Private Club Entry No. ${Number(nextTokenId) + 1}/${totalSupply}`}
 					</p>
 
 					{/* Price Display */}
