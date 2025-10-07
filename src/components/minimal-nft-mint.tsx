@@ -276,6 +276,13 @@ export function MinimalNftMint(props: Props) {
 				/>
 			</div>
 
+			{/* Subtitle */}
+			<div className="flex justify-center pb-4">
+				<p className="text-gray-300 text-lg font-medium">
+					$1 more each mint
+				</p>
+			</div>
+
 			{/* Connect Button - Hidden on mobile, shown on desktop */}
 			<div className="hidden md:block absolute top-8 right-8 z-50">
 				<ConnectButton
@@ -295,17 +302,15 @@ export function MinimalNftMint(props: Props) {
 				/>
 			</div>
 
-			{/* Spacer */}
-			<div className="h-5"></div>
 
 			{/* Center Card */}
 			<div className="flex items-center justify-center px-4">
-				<div className="rounded-lg p-8 max-w-md w-full border border-gray-800" style={{ backgroundColor: '#050505' }}>
+				<div className="rounded-lg p-8 max-w-md w-full border" style={{ backgroundColor: '#050505', borderColor: '#2e2e2e' }}>
 					{/* NFT Image */}
 					<div className="aspect-square mb-6 rounded-lg overflow-hidden bg-gray-800">
 						<Image
 							src={`https://jade-persistent-lion-245.mypinata.cloud/ipfs/bafybeieukbwnazk6akirtxqcyacwddp4tkmlvbcidkolbljlts44jz3txu/${Number(nextTokenId) + 1}.png`}
-							alt={`Private Club Entry No. ${Number(nextTokenId) + 1}/${totalSupply}`}
+							alt={`Item: ${Number(nextTokenId) + 1}/${totalSupply.toLocaleString()}`}
 							width={400}
 							height={400}
 							className="w-full h-full object-cover"
@@ -322,7 +327,7 @@ export function MinimalNftMint(props: Props) {
 
 					{/* NFT Description */}
 					<p className="text-gray-300 mb-4 text-center">
-						{nextNftData?.metadata?.description || `Private Club Entry No. ${Number(nextTokenId) + 1}/${totalSupply}`}
+						{nextNftData?.metadata?.description || `Item: ${Number(nextTokenId) + 1}/${totalSupply.toLocaleString()}`}
 					</p>
 
 					{/* Price Display */}
@@ -394,6 +399,9 @@ export function MinimalNftMint(props: Props) {
 					)}
 				</div>
 			</div>
+
+			{/* Footer with spacing */}
+			<div className="h-20"></div>
 		</div>
 	);
 }
