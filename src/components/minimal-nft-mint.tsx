@@ -276,12 +276,8 @@ export function MinimalNftMint(props: Props) {
 				/>
 			</div>
 
-			{/* Subtitle */}
-			<div className="flex justify-center pb-4">
-				<p className="text-gray-300 text-lg font-medium">
-					$1 more each mint
-				</p>
-			</div>
+			{/* Spacing under logo */}
+			<div className="pb-8"></div>
 
 			{/* Connect Button - Hidden on mobile, shown on desktop */}
 			<div className="hidden md:block absolute top-8 right-8 z-50">
@@ -326,9 +322,20 @@ export function MinimalNftMint(props: Props) {
 					)}
 
 					{/* NFT Description */}
-					<p className="text-gray-300 mb-4 text-center">
-						{nextNftData?.metadata?.description || `Item: ${Number(nextTokenId) + 1}/${totalSupply.toLocaleString()}`}
-					</p>
+					<div className="text-center mb-4 flex items-center justify-center gap-2">
+						<p className="text-gray-300">
+							{nextNftData?.metadata?.description || `Item: ${Number(nextTokenId) + 1}/${totalSupply.toLocaleString()}`}
+						</p>
+						<div className="relative group flex items-center">
+							<button className="w-5 h-5 rounded-full bg-gray-600 text-gray-300 text-xs font-bold hover:bg-gray-500 transition-colors flex items-center justify-center">
+								?
+							</button>
+							<div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-lg p-3 w-48 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+								Each item costs $1 more each mint.
+								<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+							</div>
+						</div>
+					</div>
 
 					{/* Price Display */}
 					{currentPrice && currentPrice > 0 && (
