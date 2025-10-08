@@ -287,13 +287,13 @@ export function MinimalNftMint(props: Props) {
 					theme="dark"
 					appMetadata={{
 						name: "Next Dollar Club",
-						description: "Join the Next Dollar Club - Mint your exclusive NFT",
+						description: "Next Dollar Club - $1 more each mint",
 						url: "https://nextdollarclub.com"
 					}}
 					connectModal={{
 						size: "wide",
 						titleIcon: "",
-						showThirdwebBranding: false,
+						showThirdwebBranding: true,
 					}}
 				/>
 			</div>
